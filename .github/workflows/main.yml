@@ -1,0 +1,40 @@
+name: Build Linux Kernel
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Update system
+        run: |
+          pacman -Syu --noconfirm
+
+      - name: Install base-devel
+        run: |
+          pacman -S --noconfirm base-devel
+
+      - name: Build packages
+        run: |
+          useradd -m builder
+          chown -R builder:builder "$GITHUB_WORKSPACE"
+
+          cd "$GITHUB_WORKSPACE"
+
+          su builder -c 'makepkg -s --noconfirm'
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-yousif-packages
+          path: |
+            *.pkg.tar.zst

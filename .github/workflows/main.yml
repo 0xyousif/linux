@@ -19,9 +19,31 @@ jobs:
         run: |
           pacman -Syu --noconfirm
 
-      - name: Install base-devel
+      - name: Install build dependencies
         run: |
-          pacman -S --noconfirm base-devel
+          pacman -S --needed --noconfirm \
+            base-devel \
+            bc \
+            binutils \
+            bison \
+            cpio \
+            gettext \
+            libelf \
+            openssl \
+            pahole \
+            perl \
+            python \
+            rust \
+            rust-bindgen \
+            rust-src \
+            tar \
+            xxhash \
+            xz \
+            zlib \
+            zstd \
+            clang \
+            llvm \
+            lld
 
       - name: Build packages
         run: |
@@ -30,7 +52,7 @@ jobs:
 
           cd "$GITHUB_WORKSPACE"
 
-          su builder -c 'makepkg -s --noconfirm'
+          su builder -c 'makepkg --noconfirm'
 
       - name: Upload packages
         uses: actions/upload-artifact@v4
@@ -38,3 +60,4 @@ jobs:
           name: linux-yousif-packages
           path: |
             *.pkg.tar.zst
+          if-no-files-found: error
